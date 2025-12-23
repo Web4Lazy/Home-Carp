@@ -1,0 +1,1653 @@
+<!doctype html>
+<html lang="it">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carpfishing Italia - Premium Stats Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <style>
+        :root {
+            --primary: #00FF66;
+            --primary-dark: #00DD55;
+            --primary-light: #33FF88;
+            --primary-bright: #00FF44;
+            --primary-glow: rgba(0, 255, 102, 0.5);
+            --primary-subtle: rgba(0, 255, 102, 0.15);
+            --secondary: #00EE55;
+            --accent: #44FF77;
+            --bg-dark: #0a0f0a;
+            --bg-medium: #0d150d;
+            --glass-bg: rgba(0, 255, 102, 0.03);
+            --glass-border: rgba(0, 255, 102, 0.15);
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.5);
+        }
+
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-weight: 400;
+            background: radial-gradient(ellipse at top, #0a1a0a 0%, #050a05 50%, #020502 100%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        /* Main Container - Glass Effect */
+        .main-wrapper {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .glass-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            padding: 3rem;
+            box-shadow: 
+                0 8px 32px 0 rgba(0, 0, 0, 0.5),
+                0 0 100px 0 rgba(0, 255, 102, 0.08),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(0, 255, 102, 0.03), 
+                transparent);
+            animation: shimmer 10s infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { left: -100%; }
+            50% { left: 100%; }
+        }
+
+        /* Header Section */
+        .header {
+            margin-bottom: 3rem;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-img {
+            max-width: 280px;
+            height: auto;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 0 30px rgba(0, 255, 102, 0.5));
+            transition: all 0.3s ease;
+        }
+
+        .logo-img:hover {
+            filter: drop-shadow(0 0 50px rgba(0, 255, 102, 0.8));
+            transform: scale(1.02);
+        }
+
+        .hype-claim {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00FF44 0%, #00FF66 50%, #33FF77 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 1.5rem 0;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(0, 255, 68, 0.6)); }
+            50% { filter: drop-shadow(0 0 30px rgba(0, 255, 68, 0.9)); }
+        }
+
+        .header-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .filter-btn {
+            background: rgba(0, 255, 102, 0.05);
+            backdrop-filter: blur(10px);
+            color: var(--text-secondary);
+            border: 1px solid rgba(0, 255, 102, 0.2);
+            padding: 0.75rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.9rem;
+            border-radius: 12px;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, rgba(0, 255, 68, 0.25) 0%, rgba(0, 238, 85, 0.15) 100%);
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 0 25px rgba(0, 255, 68, 0.4);
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary);
+            box-shadow: 0 8px 30px rgba(0, 255, 68, 0.4);
+            color: var(--primary);
+        }
+
+        /* Section Titles */
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 4rem 0 2.5rem 0;
+            padding-bottom: 1rem;
+            position: relative;
+            color: var(--text-primary);
+            text-shadow: 0 0 30px rgba(0, 255, 68, 0.4);
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #00FF44, #00FF66);
+            border-radius: 2px;
+            box-shadow: 0 0 25px rgba(0, 255, 68, 0.7);
+        }
+
+        /* Prize Section */
+        .prize-section {
+            background: linear-gradient(135deg, rgba(0, 255, 68, 0.08) 0%, rgba(0, 238, 85, 0.05) 100%);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 2px solid rgba(0, 255, 68, 0.3);
+            padding: 2.5rem;
+            margin: 3rem 0;
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 3rem;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.4),
+                0 0 80px rgba(0, 255, 68, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .prize-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0, 255, 68, 0.15) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        .prize-image-container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .prize-image {
+            width: 100%;
+            max-width: 350px;
+            border-radius: 16px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 0 40px rgba(0, 255, 68, 0.3);
+            border: 2px solid rgba(0, 255, 68, 0.3);
+            transition: all 0.4s ease;
+        }
+
+        .prize-image:hover {
+            transform: scale(1.05) rotateY(-5deg);
+            box-shadow: 
+                0 30px 80px rgba(0, 0, 0, 0.6),
+                0 0 60px rgba(0, 255, 68, 0.5);
+        }
+
+        .prize-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .prize-label {
+            font-size: 0.85rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-shadow: 0 0 20px rgba(0, 255, 68, 0.5);
+        }
+
+        .prize-label::before {
+            content: '🏆';
+            font-size: 1.2rem;
+        }
+
+        .prize-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            text-shadow: 0 0 30px rgba(0, 255, 68, 0.3);
+        }
+
+        .prize-name {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00FF44, #00FF66);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+        }
+
+        .prize-description {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .prize-winners {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .winner-badge {
+            background: rgba(0, 255, 68, 0.1);
+            border: 1px solid rgba(0, 255, 68, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--primary);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .winner-badge:hover {
+            background: rgba(0, 255, 68, 0.2);
+            box-shadow: 0 0 20px rgba(0, 255, 68, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: rgba(0, 255, 68, 0.05);
+            backdrop-filter: blur(20px);
+            padding: 2.5rem 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 255, 68, 0.15);
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 68, 0.15) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px) rotateX(5deg) scale(1.02);
+            border-color: rgba(0, 255, 68, 0.5);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 0 50px rgba(0, 255, 68, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 0 15px rgba(0, 255, 68, 0.5));
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            line-height: 1;
+            text-shadow: 0 0 30px rgba(0, 255, 68, 0.6);
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 500;
+        }
+
+        /* Leaderboard */
+        .leaderboard {
+            background: rgba(0, 255, 68, 0.03);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 2.5rem;
+            border: 1px solid rgba(0, 255, 68, 0.1);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .leaderboard-table thead {
+            background: linear-gradient(135deg, rgba(0, 255, 68, 0.15) 0%, rgba(0, 238, 85, 0.1) 100%);
+        }
+
+        .leaderboard-table th {
+            color: var(--primary);
+            padding: 1.25rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(0, 255, 68, 0.2);
+            text-shadow: 0 0 10px rgba(0, 255, 68, 0.3);
+        }
+
+        .leaderboard-table tbody tr {
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .leaderboard-table tbody tr:hover {
+            background: rgba(0, 255, 68, 0.08);
+            transform: translateX(8px);
+            box-shadow: -4px 0 20px rgba(0, 255, 68, 0.2);
+        }
+
+        .leaderboard-table td {
+            padding: 1.25rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .rank {
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+
+        .rank-top {
+            font-weight: 800;
+            font-size: 1.5rem;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00FF44, #00EE55);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            vertical-align: middle;
+            box-shadow: 0 4px 20px rgba(0, 255, 68, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--bg-dark);
+        }
+
+        .player-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .trend-up {
+            color: var(--primary);
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 255, 68, 0.5);
+        }
+
+        .trend-down {
+            color: #FF6B6B;
+            font-weight: bold;
+        }
+
+        .trend-neutral {
+            color: var(--text-muted);
+        }
+
+        /* Highlights */
+        .highlights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .highlight-card {
+            background: rgba(0, 255, 68, 0.05);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 255, 68, 0.15);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .highlight-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(0, 255, 68, 0.2), transparent);
+            border-radius: 50%;
+            transform: translate(30%, -30%);
+        }
+
+        .highlight-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: rgba(0, 255, 68, 0.4);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 0 50px rgba(0, 255, 68, 0.2);
+        }
+
+        .highlight-title {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            letter-spacing: 1.5px;
+            font-weight: 500;
+        }
+
+        .highlight-value {
+            color: var(--primary);
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 20px rgba(0, 255, 68, 0.5);
+        }
+
+        .highlight-detail {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            font-weight: 400;
+        }
+
+        /* Charts */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .chart-container {
+            background: rgba(0, 255, 68, 0.04);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 255, 68, 0.1);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-container::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(to top, rgba(0, 255, 68, 0.05), transparent);
+            pointer-events: none;
+        }
+
+        .chart-container:hover {
+            border-color: rgba(0, 255, 68, 0.3);
+            box-shadow: 
+                0 15px 50px rgba(0, 0, 0, 0.4),
+                0 0 50px rgba(0, 255, 68, 0.15);
+            transform: translateY(-5px);
+        }
+
+        .chart-title {
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            letter-spacing: 0.5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Insights Box */
+        .insights-box {
+            background: linear-gradient(135deg, rgba(0, 255, 68, 0.08) 0%, rgba(0, 238, 85, 0.04) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 68, 0.25);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin: 3rem 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                0 0 80px rgba(0, 255, 68, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .insights-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, rgba(0, 255, 68, 0.1), transparent 50%);
+            pointer-events: none;
+        }
+
+        .insights-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .insights-icon {
+            font-size: 2.5rem;
+            filter: drop-shadow(0 0 15px rgba(0, 255, 68, 0.5));
+        }
+
+        .insights-title {
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-shadow: 0 0 20px rgba(0, 255, 68, 0.4);
+        }
+
+        .insights-text {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 400;
+            line-height: 1.8;
+            position: relative;
+            z-index: 1;
+        }
+
+        .insights-text strong {
+            color: var(--primary);
+        }
+
+        /* Geography Section */
+        .geography-layout {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .map-container {
+            background: rgba(0, 255, 68, 0.04);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 255, 68, 0.1);
+            padding: 2rem;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        /* Interactive Map Styles */
+        .italy-map-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+        }
+
+        .italy-map-container svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .italy-map-container svg path {
+            fill: rgba(0, 255, 68, 0.1);
+            stroke: rgba(0, 255, 68, 0.4);
+            stroke-width: 1;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .italy-map-container svg path:hover {
+            fill: rgba(0, 255, 68, 0.3);
+            stroke: var(--primary);
+            stroke-width: 2;
+            filter: drop-shadow(0 0 10px rgba(0, 255, 68, 0.5));
+        }
+
+        .italy-map-container svg path.active {
+            fill: rgba(0, 255, 68, 0.4);
+            stroke: var(--primary);
+            stroke-width: 2;
+        }
+
+        /* Map Pins */
+        .map-pin {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            box-shadow: 0 0 20px rgba(0, 255, 68, 0.6);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            animation: pin-pulse 2s ease-in-out infinite;
+        }
+
+        .map-pin::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            background: var(--bg-dark);
+            border-radius: 50%;
+        }
+
+        .map-pin:hover {
+            transform: rotate(-45deg) scale(1.3);
+            box-shadow: 0 0 30px rgba(0, 255, 68, 0.8);
+        }
+
+        .map-pin.large {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #00FF44, #00FF66);
+        }
+
+        .map-pin.large::after {
+            width: 14px;
+            height: 14px;
+        }
+
+        @keyframes pin-pulse {
+            0%, 100% { box-shadow: 0 0 15px rgba(0, 255, 68, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(0, 255, 68, 0.8); }
+        }
+
+        /* Map Tooltip */
+        .map-tooltip {
+            position: absolute;
+            background: rgba(10, 15, 10, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 68, 0.3);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            z-index: 100;
+            min-width: 180px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 255, 68, 0.2);
+        }
+
+        .map-tooltip.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .map-tooltip-title {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .map-tooltip-stat {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.3rem 0;
+        }
+
+        .map-tooltip-label {
+            color: var(--text-muted);
+        }
+
+        .map-tooltip-value {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .geo-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .geo-card {
+            background: rgba(0, 255, 68, 0.05);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 255, 68, 0.15);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .geo-card:hover {
+            transform: translateX(10px) scale(1.02);
+            border-color: rgba(0, 255, 68, 0.4);
+            box-shadow: 
+                0 15px 50px rgba(0, 0, 0, 0.4),
+                0 0 40px rgba(0, 255, 68, 0.2);
+        }
+
+        .geo-label {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+            letter-spacing: 1.5px;
+            font-weight: 500;
+        }
+
+        .geo-value {
+            color: var(--primary);
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 20px rgba(0, 255, 68, 0.5);
+        }
+
+        .geo-detail {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            font-weight: 400;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: var(--text-muted);
+            margin-top: 4rem;
+            padding: 2rem 0;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(0, 255, 68, 0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .prize-section {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .prize-image-container {
+                order: -1;
+            }
+            
+            .prize-image {
+                max-width: 280px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .glass-container {
+                padding: 1.5rem;
+            }
+
+            .logo-img {
+                max-width: 200px;
+            }
+
+            .hype-claim {
+                font-size: 1.2rem;
+                letter-spacing: 1px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+
+            .stat-card {
+                padding: 1.5rem 1rem;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .highlights-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .geography-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .italy-map-container {
+                height: 350px;
+            }
+
+            .leaderboard-table {
+                font-size: 0.8rem;
+            }
+
+            .leaderboard-table th,
+            .leaderboard-table td {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 0.75rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .filter-buttons {
+                flex-wrap: wrap;
+            }
+
+            .filter-btn {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.85rem;
+            }
+
+            .prize-title {
+                font-size: 1.8rem;
+            }
+
+            .prize-name {
+                font-size: 1.4rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .prize-winners {
+                flex-direction: column;
+            }
+        }
+    </style>
+ </head>
+ <body>
+  <div class="main-wrapper">
+   <div class="glass-container">
+    <!-- Header -->
+    <header class="header">
+     <img src="https://i.postimg.cc/K86Jy6mZ/homecarp-logo.png" alt="Carpfishing Italia Logo" class="logo-img">
+     <div class="hype-claim">🔥 Pesca. Competi. Domina. 🔥</div>
+     <div class="header-subtitle">La Community #1 dei Carpisti Italiani</div>
+     <div style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.5rem;">
+      Ultimo aggiornamento: 23 Dicembre 2025, 14:30
+     </div>
+     <div class="filter-buttons">
+      <button class="filter-btn">Today</button>
+      <button class="filter-btn active">Week</button>
+      <button class="filter-btn">Month</button>
+     </div>
+    </header>
+
+    <!-- Prize Section -->
+    <div class="prize-section">
+     <div class="prize-image-container">
+      <img src="https://i.postimg.cc/tTS696F4/dc2c0b11-9e33-4629-99d6-8008d03d24b6.jpg" alt="Premio del Mese" class="prize-image">
+     </div>
+     <div class="prize-content">
+      <div class="prize-label">Prossimo Premio</div>
+      <div class="prize-title">Classifica Mensile</div>
+      <div class="prize-name">Kit Boilies Mainline 5kg</div>
+      <div class="prize-description">
+       I migliori 3 pescatori della classifica totale mensile vinceranno un fantastico kit di boilies Mainline da 5kg! 
+       Scala la classifica e porta a casa il premio! 🎣
+      </div>
+      <div class="prize-winners">
+       <div class="winner-badge">🥇 1° Classificato</div>
+       <div class="winner-badge">🥈 2° Classificato</div>
+       <div class="winner-badge">🥉 3° Classificato</div>
+      </div>
+     </div>
+    </div>
+
+    <!-- Section: Gamification -->
+    <h2 class="section-title">📊 Gamification Overview</h2>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+     <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-number">1,247</div>
+      <div class="stat-label">Total Players</div>
+     </div>
+     <div class="stat-card">
+      <div class="stat-icon">⚡</div>
+      <div class="stat-number">384</div>
+      <div class="stat-label">Active This Week</div>
+     </div>
+     <div class="stat-card">
+      <div class="stat-icon">✨</div>
+      <div class="stat-number">67</div>
+      <div class="stat-label">New Members</div>
+     </div>
+     <div class="stat-card">
+      <div class="stat-icon">🎣</div>
+      <div class="stat-number">8,923</div>
+      <div class="stat-label">Total Catches</div>
+     </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="leaderboard">
+     <table class="leaderboard-table">
+      <thead>
+       <tr>
+        <th>Rank</th>
+        <th>Avatar</th>
+        <th>Nome</th>
+        <th>Peso Tot (kg)</th>
+        <th>Catture</th>
+        <th>Biggest (kg)</th>
+        <th>Trend</th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr>
+        <td><span class="rank rank-top">🥇</span></td>
+        <td><span class="avatar">MK</span></td>
+        <td class="player-name">Marco_Korda</td>
+        <td>847.5</td>
+        <td>124</td>
+        <td>28.4</td>
+        <td class="trend-up">▲ 2</td>
+       </tr>
+       <tr>
+        <td><span class="rank rank-top">🥈</span></td>
+        <td><span class="avatar">LM</span></td>
+        <td class="player-name">Luca_Monster</td>
+        <td>723.0</td>
+        <td>98</td>
+        <td>26.8</td>
+        <td class="trend-neutral">—</td>
+       </tr>
+       <tr>
+        <td><span class="rank rank-top">🥉</span></td>
+        <td><span class="avatar">AC</span></td>
+        <td class="player-name">Andrea_CP</td>
+        <td>691.5</td>
+        <td>87</td>
+        <td>25.1</td>
+        <td class="trend-up">▲ 1</td>
+       </tr>
+       <tr>
+        <td><span class="rank">4</span></td>
+        <td><span class="avatar">GF</span></td>
+        <td class="player-name">Giovanni_Fisher</td>
+        <td>623.2</td>
+        <td>76</td>
+        <td>24.2</td>
+        <td class="trend-down">▼ 2</td>
+       </tr>
+       <tr>
+        <td><span class="rank">5</span></td>
+        <td><span class="avatar">SB</span></td>
+        <td class="player-name">Stefano_BigCarp</td>
+        <td>589.7</td>
+        <td>71</td>
+        <td>23.5</td>
+        <td class="trend-up">▲ 3</td>
+       </tr>
+       <tr>
+        <td><span class="rank">6</span></td>
+        <td><span class="avatar">PT</span></td>
+        <td class="player-name">Paolo_Tackle</td>
+        <td>534.8</td>
+        <td>68</td>
+        <td>22.1</td>
+        <td class="trend-up">▲ 1</td>
+       </tr>
+       <tr>
+        <td><span class="rank">7</span></td>
+        <td><span class="avatar">DN</span></td>
+        <td class="player-name">Davide_Nash</td>
+        <td>498.3</td>
+        <td>62</td>
+        <td>21.8</td>
+        <td class="trend-down">▼ 3</td>
+       </tr>
+       <tr>
+        <td><span class="rank">8</span></td>
+        <td><span class="avatar">RL</span></td>
+        <td class="player-name">Roberto_Lake</td>
+        <td>467.1</td>
+        <td>58</td>
+        <td>20.5</td>
+        <td class="trend-up">▲ 2</td>
+       </tr>
+       <tr>
+        <td><span class="rank">9</span></td>
+        <td><span class="avatar">FC</span></td>
+        <td class="player-name">Fabio_Carper</td>
+        <td>445.6</td>
+        <td>54</td>
+        <td>19.8</td>
+        <td class="trend-down">▼ 1</td>
+       </tr>
+       <tr>
+        <td><span class="rank">10</span></td>
+        <td><span class="avatar">AE</span></td>
+        <td class="player-name">Alessandro_End</td>
+        <td>412.0</td>
+        <td>47</td>
+        <td>18.5</td>
+        <td class="trend-up">▲ 5</td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+
+    <!-- Highlights -->
+    <div class="highlights-grid">
+     <div class="highlight-card">
+      <div class="highlight-title">🏆 Most Active</div>
+      <div class="highlight-value">Marco_Korda</div>
+      <div class="highlight-detail">124 catture questo mese</div>
+     </div>
+     <div class="highlight-card">
+      <div class="highlight-title">📈 Record Month</div>
+      <div class="highlight-value">Giovanni_Fisher</div>
+      <div class="highlight-detail">28.4 kg - Lago Trasimeno</div>
+     </div>
+     <div class="highlight-card">
+      <div class="highlight-title">⭐ Rising Star</div>
+      <div class="highlight-value">Alessandro_End</div>
+      <div class="highlight-detail">+5 posizioni ↑</div>
+     </div>
+    </div>
+
+    <!-- Section: Pro Tips & Analytics -->
+    <h2 class="section-title">🎯 Pro Tips & Analytics</h2>
+
+    <!-- Esche Performance -->
+    <div class="charts-grid">
+     <div class="chart-container">
+      <div class="chart-title">Esche Più Usate</div>
+      <canvas id="baitChart"></canvas>
+     </div>
+     <div class="chart-container">
+      <div class="chart-title">Distribuzione Tipologie</div>
+      <canvas id="typeChart"></canvas>
+     </div>
+    </div>
+
+    <!-- Analisi Temporale -->
+    <div class="charts-grid">
+     <div class="chart-container">
+      <div class="chart-title">Fasce Orarie Produttive</div>
+      <canvas id="timeChart"></canvas>
+     </div>
+     <div class="chart-container">
+      <div class="chart-title">Trend Mensile</div>
+      <canvas id="monthChart"></canvas>
+     </div>
+    </div>
+
+    <!-- Insights Box -->
+    <div class="insights-box">
+     <div class="insights-header">
+      <div class="insights-icon">💡</div>
+      <div class="insights-title">Pro Tip del Periodo</div>
+     </div>
+     <div class="insights-text">
+      <strong>Dicembre 2025:</strong> Le boilie alla frutta (Monster Crab, Scopex) stanno performando il 34% meglio rispetto al mese scorso. 
+      La fascia oraria più produttiva è l'alba (6:00-9:00) con il 42% delle catture sopra i 15kg. 
+      I laghi del Nord Italia mostrano un'attività superiore alla media, probabilmente dovuta alle temperature più miti di questo inverno.
+      <br><br>
+      🎯 <strong>Consiglio:</strong> Concentra le sessioni nelle prime ore del mattino con esche fruttate per massimizzare le probabilità di catture trophy.
+     </div>
+    </div>
+
+    <!-- Section: Geografia -->
+    <h2 class="section-title">🗺️ Distribuzione Geografica</h2>
+    <div class="geography-layout">
+     <div class="map-container">
+      <div class="chart-title">Mappa Italia - Hotspots</div>
+      <div class="italy-map-container" id="italyMap">
+       <!-- SVG Map of Italy -->
+       <svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg">
+        <!-- Italy mainland and regions -->
+        <g id="italy-regions">
+         <!-- Valle d'Aosta -->
+         <path id="valle-aosta" d="M95,85 L110,75 L125,80 L120,95 L105,100 Z" data-region="Valle d'Aosta" data-catches="89"/>
+         <!-- Piemonte -->
+         <path id="piemonte" d="M80,95 L95,85 L120,95 L130,110 L140,130 L125,150 L100,145 L75,125 L70,105 Z" data-region="Piemonte" data-catches="1287"/>
+         <!-- Lombardia -->
+         <path id="lombardia" d="M120,95 L145,80 L175,85 L195,95 L200,115 L185,135 L160,140 L140,130 L130,110 Z" data-region="Lombardia" data-catches="2847"/>
+         <!-- Trentino Alto Adige -->
+         <path id="trentino" d="M175,85 L210,70 L240,80 L235,100 L210,110 L195,95 Z" data-region="Trentino-Alto Adige" data-catches="456"/>
+         <!-- Veneto -->
+         <path id="veneto" d="M195,95 L235,100 L260,95 L275,110 L270,135 L240,145 L210,140 L200,115 Z" data-region="Veneto" data-catches="1654"/>
+         <!-- Friuli Venezia Giulia -->
+         <path id="friuli" d="M260,95 L290,90 L310,105 L295,125 L275,110 Z" data-region="Friuli-Venezia Giulia" data-catches="387"/>
+         <!-- Liguria -->
+         <path id="liguria" d="M75,145 L100,145 L125,150 L145,165 L135,180 L95,175 L65,160 Z" data-region="Liguria" data-catches="523"/>
+         <!-- Emilia-Romagna -->
+         <path id="emilia" d="M140,130 L185,135 L240,145 L265,160 L245,185 L200,195 L155,185 L145,165 L125,150 Z" data-region="Emilia-Romagna" data-catches="1923"/>
+         <!-- Toscana -->
+         <path id="toscana" d="M125,180 L155,185 L200,195 L210,220 L195,260 L165,280 L140,265 L120,230 L115,200 Z" data-region="Toscana" data-catches="1012"/>
+         <!-- Marche -->
+         <path id="marche" d="M210,220 L245,215 L265,235 L255,270 L230,285 L210,270 L195,260 Z" data-region="Marche" data-catches="678"/>
+         <!-- Umbria -->
+         <path id="umbria" d="M195,260 L210,270 L230,285 L220,310 L195,315 L175,295 L165,280 Z" data-region="Umbria" data-catches="534"/>
+         <!-- Lazio -->
+         <path id="lazio" d="M165,280 L195,315 L220,310 L235,335 L225,370 L190,385 L155,365 L140,330 L145,300 Z" data-region="Lazio" data-catches="892"/>
+         <!-- Abruzzo -->
+         <path id="abruzzo" d="M230,285 L265,280 L280,310 L270,340 L245,345 L235,335 L220,310 Z" data-region="Abruzzo" data-catches="445"/>
+         <!-- Molise -->
+         <path id="molise" d="M270,340 L295,335 L305,355 L290,370 L270,365 L260,350 L270,340 Z" data-region="Molise" data-catches="123"/>
+         <!-- Campania -->
+         <path id="campania" d="M225,370 L260,350 L290,370 L305,395 L290,420 L255,430 L230,415 L215,390 Z" data-region="Campania" data-catches="756"/>
+         <!-- Puglia -->
+         <path id="puglia" d="M290,370 L320,355 L355,370 L380,400 L365,435 L330,445 L305,430 L290,420 L305,395 Z" data-region="Puglia" data-catches="634"/>
+         <!-- Basilicata -->
+         <path id="basilicata" d="M290,420 L305,430 L320,450 L300,465 L275,455 L265,435 L255,430 L290,420 Z" data-region="Basilicata" data-catches="234"/>
+         <!-- Calabria -->
+         <path id="calabria" d="M275,455 L300,465 L310,490 L295,520 L270,535 L255,510 L260,480 Z" data-region="Calabria" data-catches="345"/>
+         <!-- Sicilia -->
+         <path id="sicilia" d="M180,495 L220,480 L260,490 L280,510 L265,540 L220,555 L175,545 L155,520 L165,500 Z" data-region="Sicilia" data-catches="567"/>
+         <!-- Sardegna -->
+         <path id="sardegna" d="M55,300 L85,285 L105,305 L110,350 L100,400 L75,420 L50,400 L40,350 L45,310 Z" data-region="Sardegna" data-catches="423"/>
+        </g>
+        
+        <!-- Water bodies indicator lines -->
+        <g id="water-effects" opacity="0.3">
+         <path d="M270,130 Q280,140 275,150" stroke="#00FF66" stroke-width="1" fill="none"/>
+         <path d="M155,120 Q165,125 160,135" stroke="#00FF66" stroke-width="1" fill="none"/>
+        </g>
+       </svg>
+       
+       <!-- Interactive Pins -->
+       <div class="map-pin large" style="top: 18%; left: 42%;" data-spot="Lago di Como" data-catches="847" data-biggest="28.4"></div>
+       <div class="map-pin" style="top: 22%; left: 52%;" data-spot="Lago di Garda" data-catches="623" data-biggest="24.2"></div>
+       <div class="map-pin" style="top: 38%; left: 50%;" data-spot="Lago Trasimeno" data-catches="456" data-biggest="22.8"></div>
+       <div class="map-pin" style="top: 28%; left: 38%;" data-spot="Lago Maggiore" data-catches="398" data-biggest="21.5"></div>
+       <div class="map-pin" style="top: 35%; left: 58%;" data-spot="Delta del Po" data-catches="534" data-biggest="26.1"></div>
+       <div class="map-pin" style="top: 45%; left: 42%;" data-spot="Lago di Bolsena" data-catches="287" data-biggest="19.8"></div>
+       <div class="map-pin" style="top: 25%; left: 48%;" data-spot="Lago d'Iseo" data-catches="312" data-biggest="20.3"></div>
+       
+       <!-- Tooltip -->
+       <div class="map-tooltip" id="mapTooltip">
+        <div class="map-tooltip-title"></div>
+        <div class="map-tooltip-stat">
+         <span class="map-tooltip-label">Catture:</span>
+         <span class="map-tooltip-value" id="tooltipCatches"></span>
+        </div>
+        <div class="map-tooltip-stat">
+         <span class="map-tooltip-label">Record:</span>
+         <span class="map-tooltip-value" id="tooltipBiggest"></span>
+        </div>
+       </div>
+      </div>
+     </div>
+     <div class="geo-stats">
+      <div class="geo-card">
+       <div class="geo-label">🥇 Regione Top</div>
+       <div class="geo-value">Lombardia</div>
+       <div class="geo-detail">2,847 catture totali</div>
+      </div>
+      <div class="geo-card">
+       <div class="geo-label">📍 Spot #1</div>
+       <div class="geo-value">Lago di Como</div>
+       <div class="geo-detail">847 catture registrate</div>
+      </div>
+      <div class="geo-card">
+       <div class="geo-label">🚀 Regione Emergente</div>
+       <div class="geo-value">Trentino</div>
+       <div class="geo-detail">+127% questo mese</div>
+      </div>
+     </div>
+    </div>
+
+    <!-- Top 5 Regioni -->
+    <div class="chart-container" style="margin-top: 2rem;">
+     <div class="chart-title">Top 5 Regioni per Catture</div>
+     <canvas id="regionChart"></canvas>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+     <p>© 2025 Carpfishing Italia - Dati aggiornati al 23 Dicembre 2025, 14:30</p>
+    </footer>
+   </div>
+  </div>
+
+  <script>
+    // Chart.js Configuration - Electric Green Theme
+    Chart.defaults.color = 'rgba(255, 255, 255, 0.7)';
+    Chart.defaults.borderColor = 'rgba(0, 255, 102, 0.1)';
+    Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+
+    // Bait Chart (Horizontal Bar with 3D effect)
+    const baitCtx = document.getElementById('baitChart').getContext('2d');
+    new Chart(baitCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Monster Crab 20mm', 'Scopex Squid 18mm', 'Strawberry Jam', 'Tutti Frutti 15mm', 'Tigernuts'],
+            datasets: [{
+                label: 'Utilizzi',
+                data: [847, 623, 512, 398, 287],
+                backgroundColor: [
+                    'rgba(0, 255, 68, 0.85)',
+                    'rgba(0, 238, 60, 0.75)',
+                    'rgba(0, 220, 55, 0.65)',
+                    'rgba(0, 200, 50, 0.55)',
+                    'rgba(0, 180, 45, 0.45)'
+                ],
+                borderColor: '#00FF44',
+                borderWidth: 2,
+                borderRadius: 12,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(0, 255, 68, 0.08)', drawBorder: false },
+                    ticks: { color: 'rgba(255, 255, 255, 0.6)' }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { color: 'rgba(255, 255, 255, 0.8)', font: { weight: '500' } }
+                }
+            }
+        }
+    });
+
+    // Type Chart (Doughnut with 3D effect)
+    const typeCtx = document.getElementById('typeChart').getContext('2d');
+    new Chart(typeCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Boilie', 'Naturali', 'Artificiali'],
+            datasets: [{
+                data: [68, 24, 8],
+                backgroundColor: [
+                    'rgba(0, 255, 68, 0.85)',
+                    'rgba(0, 220, 55, 0.7)',
+                    'rgba(0, 180, 45, 0.55)'
+                ],
+                borderColor: 'rgba(0, 20, 10, 0.8)',
+                borderWidth: 4,
+                hoverOffset: 20,
+                hoverBorderWidth: 6,
+                hoverBorderColor: '#00FF44'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            cutout: '65%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        font: { size: 13, weight: '500' },
+                        color: 'rgba(255, 255, 255, 0.85)',
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                }
+            },
+            animation: {
+                animateRotate: true,
+                animateScale: true
+            }
+        }
+    });
+
+    // Time Chart (Vertical Bar with 3D gradient)
+    const timeCtx = document.getElementById('timeChart').getContext('2d');
+    
+    function createBarGradient(ctx, chartArea) {
+        const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+        gradient.addColorStop(0, 'rgba(0, 255, 68, 0.3)');
+        gradient.addColorStop(0.5, 'rgba(0, 255, 68, 0.6)');
+        gradient.addColorStop(1, 'rgba(0, 255, 68, 0.9)');
+        return gradient;
+    }
+
+    new Chart(timeCtx, {
+        type: 'bar',
+        data: {
+            labels: ['00:00-06:00', '06:00-12:00', '12:00-18:00', '18:00-24:00'],
+            datasets: [{
+                label: 'Catture',
+                data: [1247, 3156, 1834, 2686],
+                backgroundColor: (context) => {
+                    const chart = context.chart;
+                    const {ctx, chartArea} = chart;
+                    if (!chartArea) return 'rgba(0, 255, 68, 0.7)';
+                    return createBarGradient(ctx, chartArea);
+                },
+                borderColor: '#00FF44',
+                borderWidth: 2,
+                borderRadius: { topLeft: 12, topRight: 12 },
+                borderSkipped: 'bottom',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { color: 'rgba(255, 255, 255, 0.8)', font: { weight: '500' } }
+                },
+                y: {
+                    grid: { color: 'rgba(0, 255, 68, 0.08)', drawBorder: false },
+                    beginAtZero: true,
+                    ticks: { color: 'rgba(255, 255, 255, 0.6)' }
+                }
+            }
+        }
+    });
+
+    // Month Chart (Line with area gradient)
+    const monthCtx = document.getElementById('monthChart').getContext('2d');
+    const lineGradient = monthCtx.createLinearGradient(0, 0, 0, 400);
+    lineGradient.addColorStop(0, 'rgba(0, 255, 68, 0.5)');
+    lineGradient.addColorStop(0.5, 'rgba(0, 255, 68, 0.2)');
+    lineGradient.addColorStop(1, 'rgba(0, 255, 68, 0)');
+
+    new Chart(monthCtx, {
+        type: 'line',
+        data: {
+            labels: ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'],
+            datasets: [{
+                label: 'Catture Mensili',
+                data: [423, 387, 512, 689, 834, 945, 1023, 1156, 987, 756, 634, 577],
+                backgroundColor: lineGradient,
+                borderColor: '#00FF44',
+                borderWidth: 4,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#00FF44',
+                pointBorderColor: '#0a0f0a',
+                pointBorderWidth: 3,
+                pointRadius: 6,
+                pointHoverRadius: 10,
+                pointHoverBackgroundColor: '#44FF77',
+                pointHoverBorderColor: '#FFFFFF',
+                pointHoverBorderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { color: 'rgba(255, 255, 255, 0.8)', font: { weight: '500' } }
+                },
+                y: {
+                    grid: { color: 'rgba(0, 255, 68, 0.08)', drawBorder: false },
+                    beginAtZero: true,
+                    ticks: { color: 'rgba(255, 255, 255, 0.6)' }
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            }
+        }
+    });
+
+    // Region Chart (Horizontal Bar)
+    const regionCtx = document.getElementById('regionChart').getContext('2d');
+    new Chart(regionCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Lombardia', 'Emilia-Romagna', 'Veneto', 'Piemonte', 'Toscana'],
+            datasets: [{
+                label: 'Catture',
+                data: [2847, 1923, 1654, 1287, 1012],
+                backgroundColor: [
+                    'rgba(0, 255, 68, 0.9)',
+                    'rgba(0, 238, 60, 0.8)',
+                    'rgba(0, 220, 55, 0.7)',
+                    'rgba(0, 200, 50, 0.6)',
+                    'rgba(0, 180, 45, 0.5)'
+                ],
+                borderColor: '#00FF44',
+                borderWidth: 2,
+                borderRadius: 12,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(0, 255, 68, 0.08)', drawBorder: false },
+                    ticks: { color: 'rgba(255, 255, 255, 0.6)' }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { color: 'rgba(255, 255, 255, 0.8)', font: { weight: '500' } }
+                }
+            }
+        }
+    });
+
+    // Filter button interaction
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    // Interactive Map functionality
+    const tooltip = document.getElementById('mapTooltip');
+    const tooltipTitle = tooltip.querySelector('.map-tooltip-title');
+    const tooltipCatches = document.getElementById('tooltipCatches');
+    const tooltipBiggest = document.getElementById('tooltipBiggest');
+
+    // Pin hover interactions
+    document.querySelectorAll('.map-pin').forEach(pin => {
+        pin.addEventListener('mouseenter', function(e) {
+            const spot = this.dataset.spot;
+            const catches = this.dataset.catches;
+            const biggest = this.dataset.biggest;
+            
+            tooltipTitle.textContent = spot;
+            tooltipCatches.textContent = catches;
+            tooltipBiggest.textContent = biggest + ' kg';
+            
+            const rect = this.getBoundingClientRect();
+            const mapRect = document.getElementById('italyMap').getBoundingClientRect();
+            
+            tooltip.style.left = (rect.left - mapRect.left + 30) + 'px';
+            tooltip.style.top = (rect.top - mapRect.top - 80) + 'px';
+            tooltip.classList.add('visible');
+        });
+        
+        pin.addEventListener('mouseleave', function() {
+            tooltip.classList.remove('visible');
+        });
+    });
+
+    // Region hover interactions
+    document.querySelectorAll('#italy-regions path').forEach(region => {
+        region.addEventListener('mouseenter', function(e) {
+            const regionName = this.dataset.region;
+            const catches = this.dataset.catches;
+            
+            tooltipTitle.textContent = regionName;
+            tooltipCatches.textContent = catches;
+            tooltipBiggest.textContent = '—';
+            
+            const rect = this.getBoundingClientRect();
+            const mapRect = document.getElementById('italyMap').getBoundingClientRect();
+            
+            tooltip.style.left = (e.clientX - mapRect.left + 15) + 'px';
+            tooltip.style.top = (e.clientY - mapRect.top - 80) + 'px';
+            tooltip.classList.add('visible');
+            
+            this.classList.add('active');
+        });
+        
+        region.addEventListener('mousemove', function(e) {
+            const mapRect = document.getElementById('italyMap').getBoundingClientRect();
+            tooltip.style.left = (e.clientX - mapRect.left + 15) + 'px';
+            tooltip.style.top = (e.clientY - mapRect.top - 80) + 'px';
+        });
+        
+        region.addEventListener('mouseleave', function() {
+            tooltip.classList.remove('visible');
+            this.classList.remove('active');
+        });
+    });
+  </script>
+ </body>
+</html>
